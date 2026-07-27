@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendario de citas | Real Colegio San José</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="main">
+  <div class="wrap">
+    <div class="brand">
+      <img src="assets/logo.png" alt="Escudo Real Colegio San José">
+      <div class="brand-text">
+        <span class="a">Real Colegio</span>
+        <span class="b">San José</span>
+      </div>
+    </div>
+    <div class="navlinks">
+      <a href="index.html">Inicio</a>
+      <a href="citas.html">Agendar cita</a>
+      <a href="login.html">Login</a>
+    </div>
+    <a href="https://realcolegiosanjose.edu.co/" target="_blank" rel="noopener" class="btn outline">Ir a la web</a>
+  </div>
+</nav>
+
+<section class="section">
+  <div class="wrap">
+    <a href="#" id="volver" class="back-link">← Volver</a>
+
+    <div class="persona-header">
+      <div class="avatar-lg" id="avatar">--</div>
+      <img id="fotoPersona" class="foto-persona" style="display:none;" alt="">
+      <div>
+        <h2 id="nombrePersona" style="margin-bottom:2px;">Cargando...</h2>
+        <span id="rolPersona" style="color:var(--texto-suave);"></span>
+      </div>
+    </div>
+
+    <div id="msgArea"></div>
+
+    <div class="week-nav">
+      <button class="btn outline" id="btnPrev">← Semana anterior</button>
+      <span class="rango mono" id="rangoSemana"></span>
+      <button class="btn outline" id="btnNext">Semana siguiente →</button>
+    </div>
+
+    <div class="dias-columnas" id="grid">
+      <!-- se llena por JS -->
+    </div>
+
+    <p style="margin-top:16px; font-size:.85rem; color:var(--texto-suave);">
+      <span style="color:var(--disponible); font-weight:700;">●</span> Disponible &nbsp;&nbsp;
+      <span style="color:var(--ocupado); font-weight:700;">●</span> Ocupado
+    </p>
+  </div>
+</section>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>Agendar cita</h3>
+    <p style="color:var(--texto-suave); font-size:.9rem;">Completa los datos para confirmar el espacio.</p>
+    <div class="detalle" id="detalleSlot"></div>
+    <div class="field">
+      <label for="inpRepresentante">Nombre del representante</label>
+      <input type="text" id="inpRepresentante" placeholder="Ej: Juan Pérez">
+    </div>
+    <div class="field">
+      <label for="inpTelefono">Teléfono de contacto</label>
+      <input type="tel" id="inpTelefono" placeholder="Ej: 3001234567">
+    </div>
+    <div class="field">
+      <label for="inpEstudiante">Nombre del estudiante</label>
+      <input type="text" id="inpEstudiante" placeholder="Ej: María Pérez">
+    </div>
+    <div class="field" style="display:flex; gap:12px;">
+      <div style="flex:1;">
+        <label for="inpGrado">Grado</label>
+        <input type="text" id="inpGrado" list="listaGrados" placeholder="Escribe para buscar...">
+        <datalist id="listaGrados"></datalist>
+      </div>
+      <div style="flex:1;">
+        <label for="inpSeccion">Sección</label>
+        <input type="text" id="inpSeccion" list="listaSecciones" placeholder="Ej: 1">
+        <datalist id="listaSecciones"></datalist>
+      </div>
+    </div>
+    <div class="field">
+      <label for="inpMotivo">Motivo de la visita</label>
+      <textarea id="inpMotivo" rows="3" placeholder="Describe brevemente el motivo..." style="width:100%; padding:11px 12px; border:1px solid var(--linea); border-radius:8px; font-family:inherit; resize:vertical;"></textarea>
+    </div>
+    <div id="modalError"></div>
+    <div class="modal-actions">
+      <button class="btn outline" id="btnCancelar">Cancelar</button>
+      <button class="btn dorado" id="btnConfirmar">Confirmar cita</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>© Real Colegio San José · Popayán, Cauca</span>
+    <span>Sistema de citas institucional</span>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/personas.js"></script>
+<script src="js/horarios.js"></script>
+<script src="js/data.js"></script>
+<script src="js/calendario.js"></script>
+
+</body>
+</html>

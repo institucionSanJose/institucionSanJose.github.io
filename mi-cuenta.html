@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mi cuenta | Real Colegio San José</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="main">
+  <div class="wrap">
+    <div class="brand">
+      <img src="assets/logo.png" alt="Escudo Real Colegio San José">
+      <div class="brand-text">
+        <span class="a">Real Colegio</span>
+        <span class="b">San José</span>
+      </div>
+    </div>
+    <div class="navlinks"><a href="index.html">Inicio</a></div>
+    <button class="btn outline" onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
+</nav>
+
+<section class="section">
+  <div class="wrap">
+    <div class="top-user-bar">
+      <div>
+        <h2 style="margin-bottom:2px;">Mi horario de atención</h2>
+        <span class="quien" id="quienSoy"></span>
+      </div>
+    </div>
+
+    <div id="msgArea"></div>
+
+    <div class="panel-box">
+      <h3>Mi horario de atención</h3>
+      <p style="color:var(--texto-suave); font-size:.9rem; margin-bottom:18px;">
+        Define los días y horas en las que atiendes. Cada bloque que agregues es una cita disponible (ej. Martes, 07:05 a 07:50), y se repite automáticamente todas las semanas desde hoy en adelante.
+      </p>
+      <div class="field" style="display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end;">
+        <div>
+          <label for="selDiaBloque">Día</label>
+          <select id="selDiaBloque" style="padding:11px 12px; border:1px solid var(--linea); border-radius:8px;">
+            <option value="lunes">Lunes</option>
+            <option value="martes">Martes</option>
+            <option value="miercoles">Miércoles</option>
+            <option value="jueves">Jueves</option>
+            <option value="viernes">Viernes</option>
+          </select>
+        </div>
+        <div>
+          <label for="inpInicioBloque">Hora inicio</label>
+          <input type="time" id="inpInicioBloque" style="padding:10px 12px; border:1px solid var(--linea); border-radius:8px;">
+        </div>
+        <div>
+          <label for="inpFinBloque">Hora fin</label>
+          <input type="time" id="inpFinBloque" style="padding:10px 12px; border:1px solid var(--linea); border-radius:8px;">
+        </div>
+        <button class="btn dorado" id="btnAgregarBloque">Agregar bloque</button>
+      </div>
+      <table class="tabla-simple" style="margin-top:20px;" id="tablaBloques">
+        <thead><tr><th>Día</th><th>Horario</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="panel-box">
+      <p style="color:var(--texto-suave); font-size:.9rem; margin-bottom:16px;">
+        Las horas marcadas como "Ocupado" ya tienen una cita real agendada — haz clic para ver el detalle. Las marcadas como "Bloqueado" las cerraste tú manualmente por esta semana en particular.
+      </p>
+      <div class="week-nav">
+        <button class="btn outline" id="btnPrev">← Semana anterior</button>
+        <span class="rango mono" id="rangoSemana"></span>
+        <button class="btn outline" id="btnNext">Semana siguiente →</button>
+      </div>
+      <div class="dias-columnas" id="grid"></div>
+      <p style="margin-top:16px; font-size:.85rem; color:var(--texto-suave);">
+        <span style="color:var(--disponible); font-weight:700;">●</span> Disponible &nbsp;&nbsp;
+        <span style="color:var(--ocupado); font-weight:700;">●</span> Cita agendada &nbsp;&nbsp;
+        <span style="color:#8A8F98; font-weight:700;">●</span> Bloqueado por ti
+      </p>
+    </div>
+
+    <div class="panel-box">
+      <h3 id="tituloAnio">Mis citas</h3>
+      <div class="anio-grid" id="anioGrid"></div>
+      <div class="popover-citas" id="popover">
+        <h3 id="popoverTitulo">Citas del día</h3>
+        <div id="popoverLista"></div>
+      </div>
+    </div>
+
+    <div class="panel-box">
+      <h3>Mis próximas citas</h3>
+      <div id="listaProximasCitas"><p style="color:var(--texto-suave);">Cargando...</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="modal-bg" id="modalDetalleCita">
+  <div class="modal">
+    <h3>Detalle de la cita</h3>
+    <p class="mono" id="detalleCitaFecha" style="color:var(--texto-suave); margin-bottom:16px;"></p>
+    <div id="detalleCitaContenido"></div>
+    <div class="modal-actions">
+      <button class="btn outline" id="cerrarDetalleCita">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>© Real Colegio San José · Popayán, Cauca</span>
+    <span>Sistema de citas institucional</span>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/personas.js"></script>
+<script src="js/horarios.js"></script>
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/mi-cuenta.js"></script>
+
+</body>
+</html>

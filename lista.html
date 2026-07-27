@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elegir persona | Real Colegio San José</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="main">
+  <div class="wrap">
+    <div class="brand">
+      <img src="assets/logo.png" alt="Escudo Real Colegio San José">
+      <div class="brand-text">
+        <span class="a">Real Colegio</span>
+        <span class="b">San José</span>
+      </div>
+    </div>
+    <div class="navlinks">
+      <a href="index.html">Inicio</a>
+      <a href="citas.html">Agendar cita</a>
+      <a href="login.html">Login</a>
+    </div>
+    <a href="https://realcolegiosanjose.edu.co/" target="_blank" rel="noopener" class="btn outline">Ir a la web</a>
+  </div>
+</nav>
+
+<section class="section">
+  <div class="wrap">
+    <a href="citas.html" class="back-link">← Volver</a>
+    <div class="section-title" style="text-align:left; margin-bottom:36px;">
+      <h2 id="titulo">Selecciona una persona</h2>
+      <p>Haz clic para ver su calendario de disponibilidad.</p>
+    </div>
+
+    <input type="text" id="buscador" class="buscador" placeholder="Buscar por nombre...">
+    <div class="people-grid" id="grid"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© Real Colegio San José · Popayán, Cauca</span>
+    <span>Sistema de citas institucional</span>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/personas.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const categoria = params.get('categoria') || 'docente';
+
+  const titulos = {
+    docente: 'Selecciona un docente',
+    psicologo: 'Selecciona un psicólogo',
+    coordinador: 'Selecciona al coordinador'
+  };
+  document.getElementById('titulo').textContent = titulos[categoria] || 'Selecciona una persona';
+
+  const grid = document.getElementById('grid');
+  const buscador = document.getElementById('buscador');
+  grid.innerHTML = '<p>Cargando...</p>';
+  let todasLasPersonas = [];
+
+  function renderLista(personas) {
+    grid.innerHTML = '';
+    if (personas.length === 0) {
+      grid.innerHTML = '<p>No encontramos a nadie con ese nombre.</p>';
+      return;
+    }
+    personas.forEach(p => {
+      const iniciales = p.nombre.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase();
+      const a = document.createElement('a');
+      a.href = `calendario.html?categoria=${categoria}&persona=${p.id}`;
+      a.className = 'person-card';
+      const fotoHtml = p.fotoBase64
+        ? `<img src="${p.fotoBase64}" class="foto-mini" alt="">`
+        : `<div class="avatar">${iniciales}</div>`;
+      a.innerHTML = `
+        ${fotoHtml}
+        <h4>${p.nombre}</h4>
+        <span>${categoria === 'docente' ? 'Docente' : categoria === 'psicologo' ? 'Psicólogo institucional' : 'Coordinador'}</span>
+      `;
+      grid.appendChild(a);
+    });
+  }
+
+  listarPersonas(categoria).then(personas => {
+    todasLasPersonas = personas;
+    if (personas.length === 0) {
+      grid.innerHTML = '<p>Todavía no hay nadie registrado en esta categoría. Un administrador puede agregarlo desde el panel de administración.</p>';
+      buscador.style.display = 'none';
+      return;
+    }
+    renderLista(personas);
+  }).catch(e => {
+    console.error(e);
+    grid.innerHTML = '<p>No se pudo cargar la lista. Revisa la configuración de Firebase.</p>';
+  });
+
+  buscador.addEventListener('input', () => {
+    const q = buscador.value.trim().toLowerCase();
+    renderLista(todasLasPersonas.filter(p => p.nombre.toLowerCase().includes(q)));
+  });
+</script>
+
+</body>
+</html>

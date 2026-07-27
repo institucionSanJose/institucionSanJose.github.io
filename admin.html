@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de administración | Real Colegio San José</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="main">
+  <div class="wrap">
+    <div class="brand">
+      <img src="assets/logo.png" alt="Escudo Real Colegio San José">
+      <div class="brand-text">
+        <span class="a">Real Colegio</span>
+        <span class="b">San José</span>
+      </div>
+    </div>
+    <div class="navlinks"><a href="index.html">Inicio</a></div>
+    <button class="btn outline" onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
+</nav>
+
+<section class="section">
+  <div class="wrap">
+    <div class="top-user-bar">
+      <div>
+        <h2 style="margin-bottom:2px;">Panel de administración</h2>
+        <span class="quien" id="quienSoy"></span>
+      </div>
+    </div>
+
+    <div id="msgArea"></div>
+
+    <div class="panel-box">
+      <h3>Docentes, psicólogos y coordinador</h3>
+      <p style="color:var(--texto-suave); font-size:.9rem; margin-bottom:18px;">
+        Agrega aquí a las personas antes de invitarlas por correo arriba.
+      </p>
+      <div class="field">
+        <label for="selCategoriaPersona">Categoría</label>
+        <select id="selCategoriaPersona" style="width:100%; padding:11px 12px; border:1px solid var(--linea); border-radius:8px;">
+          <option value="docente">Docente</option>
+          <option value="psicologo">Psicólogo institucional</option>
+          <option value="coordinador">Coordinador</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="inpNombrePersona">Nombre completo</label>
+        <input type="text" id="inpNombrePersona" placeholder="Ej: María Fernanda López">
+      </div>
+      <div class="field">
+        <label for="inpTelefonoPersona">Teléfono (para notificaciones, opcional por ahora)</label>
+        <input type="tel" id="inpTelefonoPersona" placeholder="Ej: 3001234567">
+      </div>
+      <div class="field">
+        <label for="inpFotoPersona">Foto (opcional)</label>
+        <input type="file" id="inpFotoPersona" accept="image/*">
+        <img id="previewFotoPersona" style="display:none; width:90px; height:90px; border-radius:50%; object-fit:cover; margin-top:10px; border:3px solid var(--dorado);">
+      </div>
+      <button class="btn dorado" id="btnCrearPersona">Agregar a la lista</button>
+
+      <table class="tabla-simple" style="margin-top:22px;" id="tablaPersonas">
+        <thead><tr><th>Nombre</th><th>Categoría</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="panel-box">
+      <h3>Invitar a una persona</h3>
+      <p style="color:var(--texto-suave); font-size:.9rem; margin-bottom:18px;">
+        La persona invitada podrá crear su propia contraseña en la página "Crear acceso", usando el mismo correo que pongas aquí.
+      </p>
+      <div class="field">
+        <label for="selRol">Rol</label>
+        <select id="selRol" style="width:100%; padding:11px 12px; border:1px solid var(--linea); border-radius:8px;">
+          <option value="docente">Docente</option>
+          <option value="psicologo">Psicólogo institucional</option>
+          <option value="coordinador">Coordinador</option>
+          <option value="admin" id="opcionAdmin">Administrador</option>
+        </select>
+      </div>
+      <div class="field" id="campoPersona">
+        <label for="selPersona">Persona (calendario que va a manejar)</label>
+        <select id="selPersona" style="width:100%; padding:11px 12px; border:1px solid var(--linea); border-radius:8px;"></select>
+      </div>
+      <div class="field">
+        <label for="inpCorreoInv">Correo de la persona</label>
+        <input type="email" id="inpCorreoInv" placeholder="docente@ejemplo.com">
+      </div>
+      <button class="btn dorado" id="btnInvitar">Invitar</button>
+    </div>
+
+    <div class="panel-box" id="cajaPropietario" style="display:none;">
+      <h3>Cambiar propietario</h3>
+      <p style="color:var(--texto-suave); font-size:.9rem; margin-bottom:18px;">
+        Solo el propietario actual puede transferir este rol. La persona que elijas debe ya tener una cuenta creada (invítala primero como administrador si aún no la tiene).
+      </p>
+      <div class="field">
+        <label for="inpCorreoNuevoDueno">Correo del nuevo propietario</label>
+        <input type="email" id="inpCorreoNuevoDueno" placeholder="correo-ya-registrado@ejemplo.com">
+      </div>
+      <button class="btn outline" id="btnCambiarDueno">Transferir propiedad</button>
+    </div>
+
+    <div class="panel-box">
+      <h3>Invitaciones</h3>
+      <table class="tabla-simple" id="tablaInvitaciones">
+        <thead><tr><th>Correo</th><th>Rol</th><th>Estado</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="panel-box">
+      <h3>Personal con acceso activo</h3>
+      <table class="tabla-simple" id="tablaUsuarios">
+        <thead><tr><th>Correo</th><th>Rol</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="modal-bg" id="modalEditarPersona">
+  <div class="modal">
+    <h3>Editar persona</h3>
+    <div class="field">
+      <label for="editNombrePersona">Nombre completo</label>
+      <input type="text" id="editNombrePersona">
+    </div>
+    <div class="field">
+      <label for="editTelefonoPersona">Teléfono</label>
+      <input type="tel" id="editTelefonoPersona">
+    </div>
+    <div class="field">
+      <label for="editFotoPersona">Cambiar foto</label>
+      <input type="file" id="editFotoPersona" accept="image/*">
+      <img id="editPreviewFoto" style="display:none; width:90px; height:90px; border-radius:50%; object-fit:cover; margin-top:10px; border:3px solid var(--dorado);">
+    </div>
+    <div id="editPersonaMsg"></div>
+    <div class="modal-actions">
+      <button class="btn outline" id="cancelarEditarPersona">Cancelar</button>
+      <button class="btn dorado" id="guardarEditarPersona">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>© Real Colegio San José · Popayán, Cauca</span>
+    <span>Sistema de citas institucional</span>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/personas.js"></script>
+<script src="js/auth.js"></script>
+<script>
+let miPerfil = null;
+
+protegerPagina(['admin', 'propietario'], async ({ user, perfil }) => {
+  miPerfil = perfil;
+  document.getElementById('quienSoy').textContent =
+    `${perfil.correo} — ${perfil.rol === 'propietario' ? 'Propietario' : 'Administrador'}`;
+
+  if (perfil.rol !== 'propietario') {
+    document.getElementById('opcionAdmin').remove();
+  } else {
+    document.getElementById('cajaPropietario').style.display = 'block';
+  }
+
+  await cargarPersonas();
+  llenarSelectorPersona();
+  cargarInvitaciones();
+  cargarUsuarios();
+});
+
+async function sembrarSiEstaVacio(personasExistentes) {
+  if (personasExistentes.length > 0) return false;
+  const ejemplo = [
+    ['Nombre Apellido Docente 1', 'docente'],
+    ['Nombre Apellido Docente 2', 'docente'],
+    ['Nombre Apellido Docente 3', 'docente'],
+    ['Nombre Apellido Psicólogo 1', 'psicologo'],
+    ['Nombre Apellido Psicólogo 2', 'psicologo'],
+    ['Nombre Apellido Coordinador', 'coordinador']
+  ];
+  for (const [nombre, categoria] of ejemplo) {
+    await crearPersona(nombre, categoria);
+  }
+  return true;
+}
+
+document.getElementById('inpFotoPersona').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  const preview = document.getElementById('previewFotoPersona');
+  if (!file) { preview.style.display = 'none'; return; }
+  const dataUrl = await procesarFotoCuadrada(file);
+  preview.src = dataUrl;
+  preview.style.display = 'block';
+  preview.dataset.procesada = dataUrl;
+});
+
+/* ---------- Editar persona ---------- */
+let personaEnEdicion = null;
+const modalEditar = document.getElementById('modalEditarPersona');
+
+function abrirEditarPersona(p) {
+  personaEnEdicion = p;
+  document.getElementById('editNombrePersona').value = p.nombre;
+  document.getElementById('editTelefonoPersona').value = p.telefono || '';
+  const preview = document.getElementById('editPreviewFoto');
+  if (p.fotoBase64) { preview.src = p.fotoBase64; preview.style.display = 'block'; }
+  else { preview.style.display = 'none'; }
+  preview.removeAttribute('data-procesada');
+  document.getElementById('editFotoPersona').value = '';
+  document.getElementById('editPersonaMsg').innerHTML = '';
+  modalEditar.classList.add('open');
+}
+document.getElementById('cancelarEditarPersona').addEventListener('click', () => modalEditar.classList.remove('open'));
+modalEditar.addEventListener('click', (e) => { if (e.target === modalEditar) modalEditar.classList.remove('open'); });
+
+document.getElementById('editFotoPersona').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  const preview = document.getElementById('editPreviewFoto');
+  if (!file) return;
+  const dataUrl = await procesarFotoCuadrada(file);
+  preview.src = dataUrl;
+  preview.style.display = 'block';
+  preview.dataset.procesada = dataUrl;
+});
+
+document.getElementById('guardarEditarPersona').addEventListener('click', async () => {
+  const nombre = document.getElementById('editNombrePersona').value.trim();
+  const telefono = document.getElementById('editTelefonoPersona').value.trim();
+  const preview = document.getElementById('editPreviewFoto');
+  if (!nombre || !personaEnEdicion) return;
+
+  const datos = { nombre, telefono: telefono || null };
+  if (preview.dataset.procesada) datos.fotoBase64 = preview.dataset.procesada;
+
+  const btn = document.getElementById('guardarEditarPersona');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  try {
+    await actualizarPersona(personaEnEdicion.id, datos);
+    modalEditar.classList.remove('open');
+    mostrarOk('msgArea', `${nombre} fue actualizado.`);
+    cargarPersonas();
+    llenarSelectorPersona();
+  } catch (e) {
+    console.error(e);
+    document.getElementById('editPersonaMsg').innerHTML = `<div class="msg error">No se pudo guardar. Intenta de nuevo.</div>`;
+  }
+  btn.disabled = false; btn.textContent = 'Guardar cambios';
+});
+
+document.getElementById('btnCrearPersona').addEventListener('click', async () => {
+  const categoria = document.getElementById('selCategoriaPersona').value;
+  const nombre = document.getElementById('inpNombrePersona').value.trim();
+  const telefono = document.getElementById('inpTelefonoPersona').value.trim();
+  const preview = document.getElementById('previewFotoPersona');
+  const fotoBase64 = preview.dataset.procesada || null;
+
+  if (!nombre) { mostrarError('msgArea', 'Escribe el nombre de la persona.'); return; }
+  const btn = document.getElementById('btnCrearPersona');
+  btn.disabled = true; btn.textContent = 'Agregando...';
+  try {
+    await crearPersona(nombre, categoria, telefono, fotoBase64);
+    document.getElementById('inpNombrePersona').value = '';
+    document.getElementById('inpTelefonoPersona').value = '';
+    document.getElementById('inpFotoPersona').value = '';
+    preview.style.display = 'none';
+    preview.removeAttribute('data-procesada');
+    mostrarOk('msgArea', `${nombre} fue agregado a la categoría "${categoria}".`);
+    cargarPersonas();
+    if (document.getElementById('selRol').value === categoria) llenarSelectorPersona();
+  } catch (e) {
+    console.error(e);
+    mostrarError('msgArea', 'No se pudo agregar. Revisa las reglas de Firestore.');
+  }
+  btn.disabled = false; btn.textContent = 'Agregar a la lista';
+});
+
+async function cargarPersonas() {
+  const tbody = document.querySelector('#tablaPersonas tbody');
+  tbody.innerHTML = '<tr><td colspan="3">Cargando...</td></tr>';
+  let personas = await listarTodasLasPersonas();
+
+  const seSembro = await sembrarSiEstaVacio(personas);
+  if (seSembro) personas = await listarTodasLasPersonas();
+
+  tbody.innerHTML = '';
+  if (personas.length === 0) { tbody.innerHTML = '<tr><td colspan="3">Todavía no hay nadie agregado.</td></tr>'; return; }
+  const etiquetas = { docente: 'Docente', psicologo: 'Psicólogo', coordinador: 'Coordinador' };
+  personas.sort((a,b) => a.categoria.localeCompare(b.categoria) || a.nombre.localeCompare(b.nombre));
+  personas.forEach(p => {
+    const tr = document.createElement('tr');
+    const fotoHtml = p.fotoBase64
+      ? `<img src="${p.fotoBase64}" style="width:34px; height:34px; border-radius:50%; object-fit:cover; vertical-align:middle; margin-right:8px; border:2px solid var(--dorado);">`
+      : '';
+    tr.innerHTML = `
+      <td>${fotoHtml}${p.nombre}</td>
+      <td><span class="pill">${etiquetas[p.categoria] || p.categoria}</span></td>
+      <td>
+        <button class="btn-mini" data-editar="${p.id}" style="color:var(--azul); margin-right:6px;">Editar</button>
+        <button class="btn-mini" data-id="${p.id}">Eliminar</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('button[data-editar]').forEach(b => {
+    b.addEventListener('click', () => {
+      const p = personas.find(x => x.id === b.dataset.editar);
+      abrirEditarPersona(p);
+    });
+  });
+  tbody.querySelectorAll('button[data-id]').forEach(b => {
+    b.addEventListener('click', async () => {
+      if (!confirm('¿Eliminar a esta persona de la lista? Esto no borra sus citas ya agendadas.')) return;
+      await eliminarPersona(b.dataset.id);
+      cargarPersonas();
+      llenarSelectorPersona();
+    });
+  });
+}
+
+async function llenarSelectorPersona() {
+  const rol = document.getElementById('selRol').value;
+  const campoPersona = document.getElementById('campoPersona');
+  const sel = document.getElementById('selPersona');
+  sel.innerHTML = '<option>Cargando...</option>';
+
+  if (rol === 'admin') {
+    campoPersona.style.display = 'none';
+    return;
+  }
+  campoPersona.style.display = 'block';
+
+  const personas = await listarPersonas(rol);
+  sel.innerHTML = '';
+  if (personas.length === 0) {
+    sel.innerHTML = '<option value="">Ninguno registrado todavía — agrégalo abajo primero</option>';
+    return;
+  }
+  personas.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id; opt.textContent = p.nombre;
+    sel.appendChild(opt);
+  });
+}
+document.getElementById('selRol').addEventListener('change', llenarSelectorPersona);
+
+document.getElementById('btnInvitar').addEventListener('click', async () => {
+  const rol = document.getElementById('selRol').value;
+  const correo = document.getElementById('inpCorreoInv').value.trim().toLowerCase();
+  const personaId = rol === 'admin' ? null : document.getElementById('selPersona').value;
+  const btn = document.getElementById('btnInvitar');
+
+  if (!correo) { mostrarError('msgArea', 'Escribe un correo.'); return; }
+  if (rol === 'admin' && miPerfil.rol !== 'propietario') {
+    mostrarError('msgArea', 'Solo el propietario puede invitar administradores.');
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Invitando...';
+  try {
+    const key = claveDeCorreo(correo);
+    await db.collection('invitaciones').doc(key).set({
+      correo, rol, personaId,
+      categoria: rol === 'admin' ? null : rol,
+      usada: false,
+      invitadoPor: miPerfil.correo
+    });
+    mostrarOk('msgArea', `Invitación creada para ${correo}. Ya puede entrar a "registro.html" y crear su contraseña.`);
+    document.getElementById('inpCorreoInv').value = '';
+    cargarInvitaciones();
+  } catch (e) {
+    console.error(e);
+    mostrarError('msgArea', 'No se pudo crear la invitación.');
+  }
+  btn.disabled = false; btn.textContent = 'Invitar';
+});
+
+document.getElementById('btnCambiarDueno').addEventListener('click', async () => {
+  const correo = document.getElementById('inpCorreoNuevoDueno').value.trim().toLowerCase();
+  if (!correo) { mostrarError('msgArea', 'Escribe el correo del nuevo propietario.'); return; }
+
+  try {
+    const snap = await db.collection('usuarios').where('correo', '==', correo).limit(1).get();
+    if (snap.empty) {
+      mostrarError('msgArea', 'Ese correo no tiene una cuenta creada todavía.');
+      return;
+    }
+    const doc = snap.docs[0];
+    await db.collection('config').doc('propietario').update({ uid: doc.id, correo });
+    await db.collection('usuarios').doc(doc.id).update({ rol: 'propietario' });
+    mostrarOk('msgArea', `${correo} ahora es el propietario. Tu cuenta seguirá activa como administrador.`);
+    await db.collection('usuarios').doc((await auth.currentUser).uid).update({ rol: 'admin' }).catch(()=>{});
+  } catch (e) {
+    console.error(e);
+    mostrarError('msgArea', 'No se pudo transferir la propiedad.');
+  }
+});
+
+async function cargarInvitaciones() {
+  const tbody = document.querySelector('#tablaInvitaciones tbody');
+  tbody.innerHTML = '<tr><td colspan="4">Cargando...</td></tr>';
+  const snap = await db.collection('invitaciones').get();
+  tbody.innerHTML = '';
+  if (snap.empty) { tbody.innerHTML = '<tr><td colspan="4">Sin invitaciones aún.</td></tr>'; return; }
+  snap.forEach(doc => {
+    const inv = doc.data();
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${inv.correo}</td>
+      <td><span class="pill">${inv.rol}</span></td>
+      <td>${inv.usada ? 'Ya se registró' : 'Pendiente'}</td>
+      <td>${inv.usada ? '' : `<button class="btn-mini" data-id="${doc.id}">Eliminar</button>`}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('button[data-id]').forEach(b => {
+    b.addEventListener('click', async () => {
+      await db.collection('invitaciones').doc(b.dataset.id).delete();
+      cargarInvitaciones();
+    });
+  });
+}
+
+async function cargarUsuarios() {
+  const tbody = document.querySelector('#tablaUsuarios tbody');
+  tbody.innerHTML = '<tr><td colspan="3">Cargando...</td></tr>';
+  const snap = await db.collection('usuarios').get();
+  tbody.innerHTML = '';
+  snap.forEach(doc => {
+    const u = doc.data();
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${u.correo}</td>
+      <td><span class="pill">${u.rol}</span></td>
+      <td><button class="btn-mini" data-correo="${u.correo}" style="color:var(--azul);">Enviar restablecer contraseña</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('button[data-correo]').forEach(b => {
+    b.addEventListener('click', async () => {
+      b.disabled = true; const original = b.textContent; b.textContent = 'Enviando...';
+      try {
+        await auth.sendPasswordResetEmail(b.dataset.correo);
+        mostrarOk('msgArea', `Se envió un correo de restablecimiento a ${b.dataset.correo}.`);
+      } catch (e) {
+        mostrarError('msgArea', traducirErrorFirebase(e.code));
+      }
+      b.disabled = false; b.textContent = original;
+    });
+  });
+}
+</script>
+
+</body>
+</html>

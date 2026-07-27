@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Configuración inicial | Real Colegio San José</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="main">
+  <div class="wrap">
+    <div class="brand">
+      <img src="assets/logo.png" alt="Escudo Real Colegio San José">
+      <div class="brand-text">
+        <span class="a">Real Colegio</span>
+        <span class="b">San José</span>
+      </div>
+    </div>
+    <div class="navlinks"><a href="index.html">Inicio</a></div>
+  </div>
+</nav>
+
+<section class="section">
+  <div class="wrap">
+    <div class="auth-box">
+      <h2>Configuración inicial</h2>
+      <p class="sub">Esta página solo funciona <strong>una vez</strong>, para crear al primer propietario (rector) del sistema. Después de usarla, se bloquea sola.</p>
+      <div id="msgArea"></div>
+      <form id="formSetup">
+        <div class="field">
+          <label for="inpCorreo">Tu correo</label>
+          <input type="email" id="inpCorreo" required placeholder="rector@ejemplo.com">
+        </div>
+        <div class="field">
+          <label for="inpClave">Crea tu contraseña</label>
+          <input type="password" id="inpClave" required minlength="6" placeholder="Mínimo 6 caracteres">
+        </div>
+        <button type="submit" class="btn dorado" style="width:100%;" id="btnCrear">Crear cuenta de propietario</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© Real Colegio San José · Popayán, Cauca</span>
+    <span>Sistema de citas institucional</span>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+document.getElementById('formSetup').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const correo = document.getElementById('inpCorreo').value.trim().toLowerCase();
+  const clave = document.getElementById('inpClave').value;
+  const btn = document.getElementById('btnCrear');
+  document.getElementById('msgArea').innerHTML = '';
+  btn.disabled = true; btn.textContent = 'Verificando...';
+
+  let cred = null;
+  try {
+    cred = await auth.createUserWithEmailAndPassword(correo, clave);
+
+    await db.runTransaction(async (t) => {
+      const ref = db.collection('config').doc('propietario');
+      const snap = await t.get(ref);
+      if (snap.exists) {
+        throw new Error('YA_EXISTE');
+      }
+      t.set(ref, { uid: cred.user.uid, correo: correo });
+      t.set(db.collection('usuarios').doc(cred.user.uid), {
+        correo: correo, rol: 'propietario', personaId: null, categoria: null
+      });
+    });
+
+    window.location.href = 'admin.html';
+  } catch (err) {
+    if (err.message === 'YA_EXISTE') {
+      mostrarError('msgArea', 'Ya existe un propietario configurado. Ve a la página de inicio de sesión.');
+      await cred_safe_delete();
+    } else {
+      mostrarError('msgArea', traducirErrorFirebase(err.code));
+    }
+    btn.disabled = false; btn.textContent = 'Crear cuenta de propietario';
+  }
+
+  async function cred_safe_delete() {
+    try { if (auth.currentUser) await auth.currentUser.delete(); } catch(e) {}
+  }
+});
+</script>
+
+</body>
+</html>

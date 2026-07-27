@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iniciar sesión | Real Colegio San José</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Source+Sans+3:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="main">
+  <div class="wrap">
+    <div class="brand">
+      <img src="assets/logo.png" alt="Escudo Real Colegio San José">
+      <div class="brand-text">
+        <span class="a">Real Colegio</span>
+        <span class="b">San José</span>
+      </div>
+    </div>
+    <div class="navlinks"><a href="index.html">Inicio</a></div>
+  </div>
+</nav>
+
+<section class="section">
+  <div class="wrap">
+    <div class="auth-box">
+      <h2>Acceso del personal</h2>
+      <p class="sub">Para docentes, psicólogos, coordinación y administración.</p>
+      <div id="msgArea"></div>
+      <form id="formLogin">
+        <div class="field">
+          <label for="inpCorreo">Correo institucional</label>
+          <input type="email" id="inpCorreo" required placeholder="tucorreo@ejemplo.com">
+        </div>
+        <div class="field">
+          <label for="inpClave">Contraseña</label>
+          <input type="password" id="inpClave" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn dorado" style="width:100%;" id="btnEntrar">Iniciar sesión</button>
+      </form>
+      <p style="text-align:center; margin-top:14px; font-size:.85rem;">
+        <a href="#" id="linkOlvide" style="color:var(--texto-suave);">¿Olvidaste tu contraseña?</a>
+      </p>
+      <p style="text-align:center; margin-top:10px; font-size:.85rem;">
+        ¿Te invitaron y aún no tienes contraseña? <a href="registro.html" style="color:var(--azul); font-weight:700;">Crea tu acceso aquí</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© Real Colegio San José · Popayán, Cauca</span>
+    <span>Sistema de citas institucional</span>
+  </div>
+</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/auth.js"></script>
+<script>
+document.getElementById('linkOlvide').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const correo = document.getElementById('inpCorreo').value.trim();
+  if (!correo) {
+    mostrarError('msgArea', 'Escribe tu correo arriba primero, luego dale clic a "¿Olvidaste tu contraseña?".');
+    return;
+  }
+  try {
+    await auth.sendPasswordResetEmail(correo);
+    mostrarOk('msgArea', `Te enviamos un correo a ${correo} con un link para crear una nueva contraseña.`);
+  } catch (err) {
+    mostrarError('msgArea', traducirErrorFirebase(err.code));
+  }
+});
+
+document.getElementById('formLogin').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const correo = document.getElementById('inpCorreo').value.trim();
+  const clave = document.getElementById('inpClave').value;
+  const btn = document.getElementById('btnEntrar');
+  btn.disabled = true; btn.textContent = 'Entrando...';
+  document.getElementById('msgArea').innerHTML = '';
+  try {
+    const cred = await auth.signInWithEmailAndPassword(correo, clave);
+    const perfil = await obtenerPerfil(cred.user.uid);
+    if (!perfil) {
+      mostrarError('msgArea', 'Tu cuenta no tiene un rol asignado. Contacta al administrador.');
+      btn.disabled = false; btn.textContent = 'Iniciar sesión';
+      return;
+    }
+    if (perfil.rol === 'admin' || perfil.rol === 'propietario') {
+      window.location.href = 'admin.html';
+    } else {
+      window.location.href = 'mi-cuenta.html';
+    }
+  } catch (err) {
+    mostrarError('msgArea', traducirErrorFirebase(err.code));
+    btn.disabled = false; btn.textContent = 'Iniciar sesión';
+  }
+});
+</script>
+
+</body>
+</html>
