@@ -20,11 +20,12 @@ async function obtenerPersona(id) {
   return doc.exists ? { id: doc.id, ...doc.data() } : null;
 }
 
-async function crearPersona(nombre, categoria, telefono, fotoBase64) {
+async function crearPersona(nombre, categoria, telefono, fotoBase64, correoNotificacion) {
   const ref = await db.collection('personas').add({
     nombre, categoria,
     telefono: telefono || null,
-    fotoBase64: fotoBase64 || null
+    fotoBase64: fotoBase64 || null,
+    correoNotificacion: correoNotificacion || null
   });
   return ref.id;
 }
