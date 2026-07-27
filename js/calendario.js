@@ -179,9 +179,10 @@ function normalizarTelefonoCO(telefono) {
 }
 
 function mostrarConfirmacion(c) {
+  enviarCorreoNotificacion(c);
+
   const numero = normalizarTelefonoCO(persona.telefono);
   let botonWhatsapp = '';
-  let link = null;
   if (numero) {
     const mensaje = `Hola ${persona.nombre}, se agendó una nueva cita contigo:\n` +
       `Fecha: ${c.fecha} — ${c.hora}\n` +
@@ -189,22 +190,33 @@ function mostrarConfirmacion(c) {
       `Estudiante: ${c.estudiante} (${c.grado} ${c.seccion})\n` +
       (c.motivo ? `Motivo: ${c.motivo}\n` : '') +
       `— Real Colegio San José`;
-    link = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
-    botonWhatsapp = `<a href="${link}" target="_blank" rel="noopener" class="btn dorado" style="margin-top:10px; display:inline-block;">📲 Si no se abrió solo, avisar por WhatsApp aquí</a>`;
+    const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+    botonWhatsapp = `<a href="${link}" target="_blank" rel="noopener" class="btn outline" style="margin-top:10px; display:inline-block;">📲 Avisarle también por WhatsApp (verá tu número)</a>`;
   }
   msgArea.innerHTML = `
     <div class="msg ok">
-      La cita quedó agendada correctamente.
-      ${numero ? '<br>Se está abriendo WhatsApp para avisarle a la persona...' : ''}
+      La cita quedó agendada correctamente. Se le notificó automáticamente por correo a la persona.
       <br>${botonWhatsapp}
     </div>`;
+}
 
-  if (link) {
-    const ventana = window.open(link, '_blank');
-    if (!ventana) {
-      msgArea.querySelector('.msg').insertAdjacentHTML('afterbegin',
-        '<div style="margin-bottom:6px;">Tu navegador bloqueó la apertura automática, usa el botón de abajo:</div>');
-    }
+async function enviarCorreoNotificacion(c) {
+  if (!persona.correoNotificacion || typeof emailjs === 'undefined') return;
+  try {
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email: persona.correoNotificacion,
+      persona_nombre: persona.nombre,
+      fecha: c.fecha,
+      hora: c.hora,
+      representante: c.representante,
+      telefono: c.telefono,
+      estudiante: c.estudiante,
+      grado: c.grado,
+      seccion: c.seccion,
+      motivo: c.motivo || 'No especificado'
+    });
+  } catch (e) {
+    console.error('No se pudo enviar el correo de notificación:', e);
   }
 }
 
@@ -269,7 +281,7 @@ btnConfirmar.addEventListener('click', async () => {
       creado: firebase.firestore.FieldValue.serverTimestamp()
     });
     ocupados.add(`${slotSeleccionado.fecha}_${slotSeleccionado.hora}`);
-    const datosCita = { fecha: slotSeleccionado.fecha, hora: slotSeleccionado.hora, representante, estudiante, grado, seccion, motivo };
+    const datosCita = { fecha: slotSeleccionado.fecha, hora: slotSeleccionado.hora, representante, estudiante, grado, seccion, motivo, telefono };
     cerrarModal();
     mostrarConfirmacion(datosCita);
     cargarSemana();
