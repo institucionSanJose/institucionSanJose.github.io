@@ -110,7 +110,7 @@ async function cargarSemana() {
     db.collection('bloqueos').where('personaId','==',perfilActual.personaId)
       .where('fecha','>=',formatoFecha(lunes)).where('fecha','<=',formatoFecha(viernes)).get()
   ]);
-  citasSnap.forEach(doc => { const c = doc.data(); citasMap[`${c.fecha}_${c.hora}`] = c; });
+  citasSnap.forEach(doc => { const c = doc.data(); c._id = doc.id; citasMap[`${c.fecha}_${c.hora}`] = c; });
   bloqueosSnap.forEach(doc => { const b = doc.data(); bloqueosMap[`${b.fecha}_${b.hora}`] = doc.id; });
 
   renderColumnas(lunes, citasMap, bloqueosMap);
@@ -147,7 +147,7 @@ function renderColumnas(lunes, citasMap, bloqueosMap) {
         const c = citasMap[clave];
         btn.className = 'slot-btn ocupado';
         btn.textContent = `${etiqueta} · Cita`;
-        btn.addEventListener('click', () => verDetalleCita(c));
+        btn.addEventListener('click', () => verDetalleCita(c, c._id));
       } else if (bloqueosMap[clave]) {
         btn.className = 'slot-btn bloqueado';
         btn.textContent = `${etiqueta} · Bloqueado`;
@@ -185,7 +185,12 @@ async function desbloquear(idDoc) {
 }
 
 /* ---------- Detalle de una cita ---------- */
-function verDetalleCita(c) {
+let citaEnDetalle = null;
+let idCitaEnDetalle = null;
+
+function verDetalleCita(c, idDoc) {
+  citaEnDetalle = c;
+  idCitaEnDetalle = idDoc || null;
   const modal = document.getElementById('modalDetalleCita');
   document.getElementById('detalleCitaFecha').textContent = `${c.fecha} — ${c.hora}`;
   document.getElementById('detalleCitaContenido').innerHTML = `
@@ -195,6 +200,7 @@ function verDetalleCita(c) {
     <div class="cita-item"><span>Grado y sección</span><span>${c.grado || '—'} ${c.seccion || ''}</span></div>
     <div class="cita-item" style="display:block;"><span style="display:block; margin-bottom:6px;">Motivo</span><span style="display:block; color:var(--texto-suave);">${c.motivo || 'No se especificó un motivo.'}</span></div>
   `;
+  document.getElementById('btnCancelarCita').style.display = idDoc ? 'inline-flex' : 'none';
   modal.classList.add('open');
 }
 document.getElementById('cerrarDetalleCita').addEventListener('click', () => {
@@ -202,6 +208,24 @@ document.getElementById('cerrarDetalleCita').addEventListener('click', () => {
 });
 document.getElementById('modalDetalleCita').addEventListener('click', (e) => {
   if (e.target.id === 'modalDetalleCita') e.currentTarget.classList.remove('open');
+});
+document.getElementById('btnCancelarCita').addEventListener('click', async () => {
+  if (!idCitaEnDetalle) return;
+  if (!confirm('¿Seguro que quieres cancelar esta cita? Esta acción no se puede deshacer.')) return;
+  const btn = document.getElementById('btnCancelarCita');
+  btn.disabled = true; btn.textContent = 'Cancelando...';
+  try {
+    await db.collection('citas').doc(idCitaEnDetalle).delete();
+    document.getElementById('modalDetalleCita').classList.remove('open');
+    mostrarOk('msgArea', 'La cita fue cancelada.');
+    cargarSemana();
+    cargarAnio();
+    cargarProximasCitas();
+  } catch (e) {
+    console.error(e);
+    alert('No se pudo cancelar la cita. Intenta de nuevo.');
+  }
+  btn.disabled = false; btn.textContent = 'Cancelar esta cita';
 });
 
 /* ---------- Vista anual de mis citas reales ---------- */
@@ -219,6 +243,7 @@ async function cargarAnio() {
     .where('fecha','>=',`${anio}-01-01`).where('fecha','<=',`${anio}-12-31`).get();
   snap.forEach(doc => {
     const c = doc.data();
+    c._id = doc.id;
     if (!citasPorFecha[c.fecha]) citasPorFecha[c.fecha] = [];
     citasPorFecha[c.fecha].push(c);
   });
@@ -281,7 +306,7 @@ function mostrarCitasDelDia(fechaStr, citas) {
       <span class="mono">${c.telefono || ''}</span>
     </div>`).join('');
   document.querySelectorAll('#popoverLista .cita-item').forEach((el, i) => {
-    el.addEventListener('click', () => verDetalleCita(citas[i]));
+    el.addEventListener('click', () => verDetalleCita(citas[i], citas[i]._id));
   });
   const pop = document.getElementById('popover');
   pop.classList.add('open');
@@ -297,7 +322,7 @@ async function cargarProximasCitas() {
     .get();
 
   const citas = [];
-  snap.forEach(doc => citas.push(doc.data()));
+  snap.forEach(doc => { const c = doc.data(); c._id = doc.id; citas.push(c); });
   citas.sort((a,b) => a.fecha === b.fecha ? a.hora.localeCompare(b.hora) : a.fecha.localeCompare(b.fecha));
 
   if (citas.length === 0) {
@@ -316,6 +341,6 @@ async function cargarProximasCitas() {
   }).join('');
 
   cont.querySelectorAll('.cita-item').forEach((el, i) => {
-    el.addEventListener('click', () => verDetalleCita(citas[i]));
+    el.addEventListener('click', () => verDetalleCita(citas[i], citas[i]._id));
   });
 }
