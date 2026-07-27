@@ -371,3 +371,9 @@ footer .wrap{display:flex; justify-content:space-between; align-items:center; fl
   .mvv{grid-template-columns:1fr;}
   .grid-semana{grid-template-columns:70px repeat(5,1fr); font-size:.78rem;}
 }
+
+/* Login visible en el menú móvil (aunque el resto del menú esté oculto) */
+.nav-login-movil{ display:none; }
+@media (max-width: 860px){
+  .nav-login-movil{ display:inline-flex !important; margin-left:8px; }
+}
