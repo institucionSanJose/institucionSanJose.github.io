@@ -36,7 +36,10 @@
         </div>
         <div class="field">
           <label for="inpClave">Contraseña</label>
-          <input type="password" id="inpClave" required placeholder="••••••••">
+          <div class="campo-clave">
+            <input type="password" id="inpClave" required placeholder="••••••••">
+            <button type="button" class="btn-ojo" id="btnOjoClave" aria-label="Mostrar contraseña">👁️</button>
+          </div>
         </div>
         <button type="submit" class="btn dorado" style="width:100%;" id="btnEntrar">Iniciar sesión</button>
       </form>
@@ -76,6 +79,14 @@ document.getElementById('linkOlvide').addEventListener('click', async (e) => {
   } catch (err) {
     mostrarError('msgArea', traducirErrorFirebase(err.code));
   }
+});
+
+document.getElementById('btnOjoClave').addEventListener('click', () => {
+  const inp = document.getElementById('inpClave');
+  const btn = document.getElementById('btnOjoClave');
+  const visible = inp.type === 'text';
+  inp.type = visible ? 'password' : 'text';
+  btn.textContent = visible ? '👁️' : '🙈';
 });
 
 document.getElementById('formLogin').addEventListener('submit', async (e) => {

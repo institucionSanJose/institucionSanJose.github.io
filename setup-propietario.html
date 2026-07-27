@@ -36,7 +36,10 @@
         </div>
         <div class="field">
           <label for="inpClave">Crea tu contraseña</label>
-          <input type="password" id="inpClave" required minlength="6" placeholder="Mínimo 6 caracteres">
+          <div class="campo-clave">
+            <input type="password" id="inpClave" required minlength="6" placeholder="Mínimo 6 caracteres">
+            <button type="button" class="btn-ojo" id="btnOjoClave" aria-label="Mostrar contraseña">👁️</button>
+          </div>
         </div>
         <button type="submit" class="btn dorado" style="width:100%;" id="btnCrear">Crear cuenta de propietario</button>
       </form>
@@ -57,6 +60,14 @@
 <script src="js/firebase-config.js"></script>
 <script src="js/auth.js"></script>
 <script>
+document.getElementById('btnOjoClave').addEventListener('click', () => {
+  const inp = document.getElementById('inpClave');
+  const btn = document.getElementById('btnOjoClave');
+  const visible = inp.type === 'text';
+  inp.type = visible ? 'password' : 'text';
+  btn.textContent = visible ? '👁️' : '🙈';
+});
+
 document.getElementById('formSetup').addEventListener('submit', async (e) => {
   e.preventDefault();
   const correo = document.getElementById('inpCorreo').value.trim().toLowerCase();
