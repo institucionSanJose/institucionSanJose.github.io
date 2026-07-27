@@ -301,3 +301,21 @@ async function cargarProximasCitas() {
   citas.sort((a,b) => a.fecha === b.fecha ? a.hora.localeCompare(b.hora) : a.fecha.localeCompare(b.fecha));
 
   if (citas.length === 0) {
+    cont.innerHTML = '<p style="color:var(--texto-suave);">No hay citas agendadas.</p>';
+    return;
+  }
+
+  cont.innerHTML = citas.map(c => {
+    const [y,m,d] = c.fecha.split('-').map(Number);
+    const fechaObj = new Date(y, m-1, d);
+    return `
+      <div class="cita-item" style="cursor:pointer;" data-fecha="${c.fecha}" data-hora="${c.hora}">
+        <span><strong>${formatoLargo(fechaObj)}</strong> — ${c.hora} — ${c.representante || ''} (${c.estudiante || ''})</span>
+        <span class="mono">${c.telefono || ''}</span>
+      </div>`;
+  }).join('');
+
+  cont.querySelectorAll('.cita-item').forEach((el, i) => {
+    el.addEventListener('click', () => verDetalleCita(citas[i]));
+  });
+}
