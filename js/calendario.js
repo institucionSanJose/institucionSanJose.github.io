@@ -170,33 +170,11 @@ function mostrarMensaje(tipo, texto) {
   setTimeout(() => { msgArea.innerHTML = ''; }, 5000);
 }
 
-function normalizarTelefonoCO(telefono) {
-  if (!telefono) return null;
-  const digitos = telefono.replace(/\D/g, '');
-  if (digitos.length === 10) return `57${digitos}`;
-  if (digitos.length === 12 && digitos.startsWith('57')) return digitos;
-  return digitos.length >= 10 ? digitos : null;
-}
-
 function mostrarConfirmacion(c) {
   enviarCorreoNotificacion(c);
-
-  const numero = normalizarTelefonoCO(persona.telefono);
-  let botonWhatsapp = '';
-  if (numero) {
-    const mensaje = `Hola ${persona.nombre}, se agendó una nueva cita contigo:\n` +
-      `Fecha: ${c.fecha} — ${c.hora}\n` +
-      `Representante: ${c.representante}\n` +
-      `Estudiante: ${c.estudiante} (${c.grado} ${c.seccion})\n` +
-      (c.motivo ? `Motivo: ${c.motivo}\n` : '') +
-      `— Real Colegio San José`;
-    const link = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
-    botonWhatsapp = `<a href="${link}" target="_blank" rel="noopener" class="btn outline" style="margin-top:10px; display:inline-block;">📲 Avisarle también por WhatsApp (verá tu número)</a>`;
-  }
   msgArea.innerHTML = `
     <div class="msg ok">
       La cita quedó agendada correctamente. Se le notificó automáticamente por correo a la persona.
-      <br>${botonWhatsapp}
     </div>`;
 }
 
@@ -281,7 +259,7 @@ btnConfirmar.addEventListener('click', async () => {
       creado: firebase.firestore.FieldValue.serverTimestamp()
     });
     ocupados.add(`${slotSeleccionado.fecha}_${slotSeleccionado.hora}`);
-    const datosCita = { fecha: slotSeleccionado.fecha, hora: slotSeleccionado.hora, representante, estudiante, grado, seccion, motivo, telefono };
+    const datosCita = { fecha: slotSeleccionado.fecha, hora: slotSeleccionado.hora, representante, estudiante, grado, seccion, motivo };
     cerrarModal();
     mostrarConfirmacion(datosCita);
     cargarSemana();
