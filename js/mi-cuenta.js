@@ -228,7 +228,8 @@ async function cargarAnio() {
 function renderAnio(citasPorFecha) {
   const anioGrid = document.getElementById('anioGrid');
   anioGrid.innerHTML = '';
-  for (let m=0;m<12;m++){
+  const mesActual = new Date().getMonth();
+  for (let m=mesActual;m<12;m++){
     const primerDia = new Date(anio,m,1);
     const totalDias = new Date(anio,m+1,0).getDate();
     const offset = (primerDia.getDay()+6)%7;
@@ -300,21 +301,3 @@ async function cargarProximasCitas() {
   citas.sort((a,b) => a.fecha === b.fecha ? a.hora.localeCompare(b.hora) : a.fecha.localeCompare(b.fecha));
 
   if (citas.length === 0) {
-    cont.innerHTML = '<p style="color:var(--texto-suave);">No hay citas agendadas.</p>';
-    return;
-  }
-
-  cont.innerHTML = citas.map(c => {
-    const [y,m,d] = c.fecha.split('-').map(Number);
-    const fechaObj = new Date(y, m-1, d);
-    return `
-      <div class="cita-item" style="cursor:pointer;" data-fecha="${c.fecha}" data-hora="${c.hora}">
-        <span><strong>${formatoLargo(fechaObj)}</strong> — ${c.hora} — ${c.representante || ''} (${c.estudiante || ''})</span>
-        <span class="mono">${c.telefono || ''}</span>
-      </div>`;
-  }).join('');
-
-  cont.querySelectorAll('.cita-item').forEach((el, i) => {
-    el.addEventListener('click', () => verDetalleCita(citas[i]));
-  });
-}
