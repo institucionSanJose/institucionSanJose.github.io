@@ -53,8 +53,12 @@
         <input type="text" id="inpNombrePersona" placeholder="Ej: María Fernanda López">
       </div>
       <div class="field">
-        <label for="inpTelefonoPersona">Teléfono (para notificaciones, opcional por ahora)</label>
+        <label for="inpTelefonoPersona">Teléfono (referencia, opcional)</label>
         <input type="tel" id="inpTelefonoPersona" placeholder="Ej: 3001234567">
+      </div>
+      <div class="field">
+        <label for="inpCorreoPersona">Correo para notificaciones de citas</label>
+        <input type="email" id="inpCorreoPersona" placeholder="docente@ejemplo.com">
       </div>
       <div class="field">
         <label for="inpFotoPersona">Foto (opcional)</label>
@@ -134,6 +138,10 @@
     <div class="field">
       <label for="editTelefonoPersona">Teléfono</label>
       <input type="tel" id="editTelefonoPersona">
+    </div>
+    <div class="field">
+      <label for="editCorreoPersona">Correo para notificaciones</label>
+      <input type="email" id="editCorreoPersona">
     </div>
     <div class="field">
       <label for="editFotoPersona">Cambiar foto</label>
@@ -216,6 +224,7 @@ function abrirEditarPersona(p) {
   personaEnEdicion = p;
   document.getElementById('editNombrePersona').value = p.nombre;
   document.getElementById('editTelefonoPersona').value = p.telefono || '';
+  document.getElementById('editCorreoPersona').value = p.correoNotificacion || '';
   const preview = document.getElementById('editPreviewFoto');
   if (p.fotoBase64) { preview.src = p.fotoBase64; preview.style.display = 'block'; }
   else { preview.style.display = 'none'; }
@@ -240,10 +249,11 @@ document.getElementById('editFotoPersona').addEventListener('change', async (e) 
 document.getElementById('guardarEditarPersona').addEventListener('click', async () => {
   const nombre = document.getElementById('editNombrePersona').value.trim();
   const telefono = document.getElementById('editTelefonoPersona').value.trim();
+  const correoNotif = document.getElementById('editCorreoPersona').value.trim();
   const preview = document.getElementById('editPreviewFoto');
   if (!nombre || !personaEnEdicion) return;
 
-  const datos = { nombre, telefono: telefono || null };
+  const datos = { nombre, telefono: telefono || null, correoNotificacion: correoNotif || null };
   if (preview.dataset.procesada) datos.fotoBase64 = preview.dataset.procesada;
 
   const btn = document.getElementById('guardarEditarPersona');
@@ -265,6 +275,7 @@ document.getElementById('btnCrearPersona').addEventListener('click', async () =>
   const categoria = document.getElementById('selCategoriaPersona').value;
   const nombre = document.getElementById('inpNombrePersona').value.trim();
   const telefono = document.getElementById('inpTelefonoPersona').value.trim();
+  const correoNotif = document.getElementById('inpCorreoPersona').value.trim();
   const preview = document.getElementById('previewFotoPersona');
   const fotoBase64 = preview.dataset.procesada || null;
 
@@ -272,9 +283,10 @@ document.getElementById('btnCrearPersona').addEventListener('click', async () =>
   const btn = document.getElementById('btnCrearPersona');
   btn.disabled = true; btn.textContent = 'Agregando...';
   try {
-    await crearPersona(nombre, categoria, telefono, fotoBase64);
+    await crearPersona(nombre, categoria, telefono, fotoBase64, correoNotif);
     document.getElementById('inpNombrePersona').value = '';
     document.getElementById('inpTelefonoPersona').value = '';
+    document.getElementById('inpCorreoPersona').value = '';
     document.getElementById('inpFotoPersona').value = '';
     preview.style.display = 'none';
     preview.removeAttribute('data-procesada');
