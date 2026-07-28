@@ -377,3 +377,7 @@ footer .wrap{display:flex; justify-content:space-between; align-items:center; fl
 @media (max-width: 860px){
   .nav-login-movil{ display:inline-flex !important; margin-left:8px; }
 }
+
+/* Tablas con scroll horizontal en pantallas angostas */
+.tabla-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.tabla-scroll table{ min-width:420px; }
