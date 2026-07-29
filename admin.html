@@ -500,7 +500,10 @@ async function cargarUsuarios() {
     tr.innerHTML = `
       <td>${u.correo}</td>
       <td><span class="pill">${u.rol}</span></td>
-      <td><button class="btn-mini" data-correo="${u.correo}" style="color:var(--azul);">Enviar restablecer contraseña</button></td>
+      <td>
+        <button class="btn-mini" data-correo="${u.correo}" style="color:var(--azul); margin-right:6px;">Enviar restablecer contraseña</button>
+        ${u.rol === 'propietario' ? '' : `<button class="btn-mini" data-eliminar-uid="${doc.id}" data-eliminar-correo="${u.correo}">Eliminar acceso</button>`}
+      </td>
     `;
     tbody.appendChild(tr);
   });
@@ -514,6 +517,20 @@ async function cargarUsuarios() {
         mostrarError('msgArea', traducirErrorFirebase(e.code));
       }
       b.disabled = false; b.textContent = original;
+    });
+  });
+  tbody.querySelectorAll('button[data-eliminar-uid]').forEach(b => {
+    b.addEventListener('click', async () => {
+      const correo = b.dataset.eliminarCorreo;
+      if (!confirm(`¿Quitarle el acceso a ${correo}? Ya no podrá entrar a ninguna parte del sistema.`)) return;
+      try {
+        await db.collection('usuarios').doc(b.dataset.eliminarUid).delete();
+        mostrarOk('msgArea', `Se le quitó el acceso a ${correo}.`);
+        cargarUsuarios();
+      } catch (e) {
+        console.error(e);
+        mostrarError('msgArea', 'No se pudo quitar el acceso.');
+      }
     });
   });
 }
