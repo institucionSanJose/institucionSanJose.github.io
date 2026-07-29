@@ -8,7 +8,7 @@ let perfilActual = null;
 let offsetSemanas = 0;
 let bloquesActuales = [];
 
-protegerPagina(['docente', 'psicologo', 'coordinador'], async ({ user, perfil }) => {
+protegerPagina(['docente', 'psicologo', 'coordinador', 'rector'], async ({ user, perfil }) => {
   perfilActual = perfil;
   const persona = await obtenerPersona(perfil.personaId);
   document.getElementById('quienSoy').textContent =
