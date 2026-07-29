@@ -17,7 +17,7 @@ const avatarEl = document.getElementById('avatar');
 const volverEl = document.getElementById('volver');
 const msgArea = document.getElementById('msgArea');
 
-const roles = { docente: 'Docente', psicologo: 'Psicólogo institucional', coordinador: 'Coordinador' };
+const roles = { docente: 'Docente', psicologo: 'Psicóloga institucional', coordinador: 'Coordinador', rector: 'Rector' };
 
 volverEl.href = categoria === 'coordinador' ? 'lista.html?categoria=coordinador' : `lista.html?categoria=${categoria}`;
 
