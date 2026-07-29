@@ -370,6 +370,13 @@ footer .wrap{display:flex; justify-content:space-between; align-items:center; fl
   .navlinks{display:none;}
   .mvv{grid-template-columns:1fr;}
   .grid-semana{grid-template-columns:70px repeat(5,1fr); font-size:.78rem;}
+
+  nav.main .wrap{ flex-wrap:wrap; row-gap:8px; padding:10px 16px; }
+  .brand{ gap:8px; }
+  .brand img{ height:36px; }
+  .brand-text .a{ font-size:.6rem; letter-spacing:1px; }
+  .brand-text .b{ font-size:.92rem; }
+  nav.main .btn{ padding:8px 14px; font-size:.8rem; }
 }
 
 /* Login visible en el menú móvil (aunque el resto del menú esté oculto) */
