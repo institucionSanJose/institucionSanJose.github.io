@@ -60,8 +60,12 @@
 
   const titulos = {
     docente: 'Selecciona un docente',
-    psicologo: 'Selecciona un psicólogo',
-    coordinador: 'Selecciona al coordinador'
+    psicologo: 'Selecciona a la psicóloga',
+    coordinador: 'Selecciona al coordinador',
+    rector: 'Agendar con el rector'
+  };
+  const etiquetasCategoria = {
+    docente: 'Docente', psicologo: 'Psicóloga institucional', coordinador: 'Coordinador', rector: 'Rector'
   };
   document.getElementById('titulo').textContent = titulos[categoria] || 'Selecciona una persona';
 
@@ -87,7 +91,7 @@
       a.innerHTML = `
         ${fotoHtml}
         <h4>${p.nombre}</h4>
-        <span>${categoria === 'docente' ? 'Docente' : categoria === 'psicologo' ? 'Psicólogo institucional' : 'Coordinador'}</span>
+        <span>${etiquetasCategoria[categoria] || ''}</span>
       `;
       grid.appendChild(a);
     });

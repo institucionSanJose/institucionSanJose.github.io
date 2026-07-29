@@ -36,7 +36,12 @@
     <div id="msgArea"></div>
 
     <div class="panel-box">
-      <h3>Docentes, psicólogos y coordinador</h3>
+      <h3>Mi calendario personal</h3>
+      <div id="miVinculoEstado"><p style="color:var(--texto-suave);">Cargando...</p></div>
+    </div>
+
+    <div class="panel-box">
+      <h3>Docentes, psicóloga, coordinador y rector</h3>
       <p style="color:var(--texto-suave); font-size:.9rem; margin-bottom:18px;">
         Agrega aquí a las personas antes de invitarlas por correo arriba.
       </p>
@@ -44,8 +49,9 @@
         <label for="selCategoriaPersona">Categoría</label>
         <select id="selCategoriaPersona" style="width:100%; padding:11px 12px; border:1px solid var(--linea); border-radius:8px;">
           <option value="docente">Docente</option>
-          <option value="psicologo">Psicólogo institucional</option>
+          <option value="psicologo">Psicóloga institucional</option>
           <option value="coordinador">Coordinador</option>
+          <option value="rector">Rector</option>
         </select>
       </div>
       <div class="field">
@@ -80,8 +86,9 @@
         <label for="selRol">Rol</label>
         <select id="selRol" style="width:100%; padding:11px 12px; border:1px solid var(--linea); border-radius:8px;">
           <option value="docente">Docente</option>
-          <option value="psicologo">Psicólogo institucional</option>
+          <option value="psicologo">Psicóloga institucional</option>
           <option value="coordinador">Coordinador</option>
+          <option value="rector">Rector</option>
           <option value="admin" id="opcionAdmin">Administrador</option>
         </select>
       </div>
@@ -186,7 +193,49 @@ protegerPagina(['admin', 'propietario'], async ({ user, perfil }) => {
   llenarSelectorPersona();
   cargarInvitaciones();
   cargarUsuarios();
+  cargarMiVinculo();
 });
+
+async function cargarMiVinculo() {
+  const cont = document.getElementById('miVinculoEstado');
+  if (miPerfil.personaId) {
+    const p = await obtenerPersona(miPerfil.personaId);
+    cont.innerHTML = `
+      <p style="margin-bottom:14px;">Tu cuenta está vinculada a: <strong>${p ? p.nombre : 'persona no encontrada'}</strong>. Puedes atender citas y configurar tu horario desde ahí.</p>
+      <a href="mi-cuenta.html" class="btn dorado" style="margin-right:8px;">Ir a mi horario de atención</a>
+      <button class="btn outline" id="btnDesvincular">Desvincular</button>
+    `;
+    document.getElementById('btnDesvincular').addEventListener('click', async () => {
+      await db.collection('usuarios').doc(auth.currentUser.uid).update({ personaId: null, categoria: null });
+      miPerfil.personaId = null; miPerfil.categoria = null;
+      mostrarOk('msgArea', 'Se desvinculó tu cuenta.');
+      cargarMiVinculo();
+    });
+  } else {
+    const todas = await listarTodasLasPersonas();
+    const etiquetasP = { docente: 'Docente', psicologo: 'Psicóloga', coordinador: 'Coordinador', rector: 'Rector' };
+    const opciones = todas.map(p => `<option value="${p.id}|${p.categoria}">${p.nombre} (${etiquetasP[p.categoria] || p.categoria})</option>`).join('');
+    cont.innerHTML = `
+      <p style="color:var(--texto-suave); font-size:.9rem; margin-bottom:14px;">
+        Si tú también atiendes citas (por ejemplo, si eres el rector), vincula tu cuenta a tu persona en la lista para poder configurar tu propio horario de atención.
+      </p>
+      <select id="selVincular" style="padding:11px 12px; border:1px solid var(--linea); border-radius:8px; margin-right:8px;">
+        <option value="">-- Elige una persona --</option>
+        ${opciones}
+      </select>
+      <button class="btn dorado" id="btnVincular">Vincular mi cuenta</button>
+    `;
+    document.getElementById('btnVincular').addEventListener('click', async () => {
+      const val = document.getElementById('selVincular').value;
+      if (!val) { mostrarError('msgArea', 'Elige una persona de la lista.'); return; }
+      const [personaId, categoria] = val.split('|');
+      await db.collection('usuarios').doc(auth.currentUser.uid).update({ personaId, categoria });
+      miPerfil.personaId = personaId; miPerfil.categoria = categoria;
+      mostrarOk('msgArea', 'Tu cuenta quedó vinculada.');
+      cargarMiVinculo();
+    });
+  }
+}
 
 async function sembrarSiEstaVacio(personasExistentes) {
   if (personasExistentes.length > 0) return false;
@@ -304,7 +353,7 @@ async function cargarPersonas() {
 
   tbody.innerHTML = '';
   if (personas.length === 0) { tbody.innerHTML = '<tr><td colspan="3">Todavía no hay nadie agregado.</td></tr>'; return; }
-  const etiquetas = { docente: 'Docente', psicologo: 'Psicólogo', coordinador: 'Coordinador' };
+  const etiquetas = { docente: 'Docente', psicologo: 'Psicóloga', coordinador: 'Coordinador', rector: 'Rector' };
   personas.sort((a,b) => a.categoria.localeCompare(b.categoria) || a.nombre.localeCompare(b.nombre));
   personas.forEach(p => {
     const tr = document.createElement('tr');
