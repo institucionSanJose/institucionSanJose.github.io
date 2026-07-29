@@ -41,7 +41,7 @@
     </div>
 
     <div class="panel-box">
-      <h3>Docentes, psicóloga, coordinador y rector</h3>
+      <h3>Docentes, psicóloga, coordinadora y rectoría</h3>
       <p style="color:var(--texto-suave); font-size:.9rem; margin-bottom:18px;">
         Agrega aquí a las personas antes de invitarlas por correo arriba.
       </p>
@@ -50,8 +50,8 @@
         <select id="selCategoriaPersona" style="width:100%; padding:11px 12px; border:1px solid var(--linea); border-radius:8px;">
           <option value="docente">Docente</option>
           <option value="psicologo">Psicóloga institucional</option>
-          <option value="coordinador">Coordinador</option>
-          <option value="rector">Rector</option>
+          <option value="coordinador">Coordinadora</option>
+          <option value="rector">Rectoría</option>
         </select>
       </div>
       <div class="field">
@@ -87,8 +87,8 @@
         <select id="selRol" style="width:100%; padding:11px 12px; border:1px solid var(--linea); border-radius:8px;">
           <option value="docente">Docente</option>
           <option value="psicologo">Psicóloga institucional</option>
-          <option value="coordinador">Coordinador</option>
-          <option value="rector">Rector</option>
+          <option value="coordinador">Coordinadora</option>
+          <option value="rector">Rectoría</option>
           <option value="admin" id="opcionAdmin">Administrador</option>
         </select>
       </div>
@@ -213,11 +213,11 @@ async function cargarMiVinculo() {
     });
   } else {
     const todas = await listarTodasLasPersonas();
-    const etiquetasP = { docente: 'Docente', psicologo: 'Psicóloga', coordinador: 'Coordinador', rector: 'Rector' };
+    const etiquetasP = { docente: 'Docente', psicologo: 'Psicóloga', coordinador: 'Coordinadora', rector: 'Rectoría' };
     const opciones = todas.map(p => `<option value="${p.id}|${p.categoria}">${p.nombre} (${etiquetasP[p.categoria] || p.categoria})</option>`).join('');
     cont.innerHTML = `
       <p style="color:var(--texto-suave); font-size:.9rem; margin-bottom:14px;">
-        Si tú también atiendes citas (por ejemplo, si eres el rector), vincula tu cuenta a tu persona en la lista para poder configurar tu propio horario de atención.
+        Si tú también atiendes citas (por ejemplo, si eres de rectoría), vincula tu cuenta a tu persona en la lista para poder configurar tu propio horario de atención.
       </p>
       <select id="selVincular" style="padding:11px 12px; border:1px solid var(--linea); border-radius:8px; margin-right:8px;">
         <option value="">-- Elige una persona --</option>
@@ -245,7 +245,7 @@ async function sembrarSiEstaVacio(personasExistentes) {
     ['Nombre Apellido Docente 3', 'docente'],
     ['Nombre Apellido Psicólogo 1', 'psicologo'],
     ['Nombre Apellido Psicólogo 2', 'psicologo'],
-    ['Nombre Apellido Coordinador', 'coordinador']
+    ['Nombre Apellido Coordinadora', 'coordinador']
   ];
   for (const [nombre, categoria] of ejemplo) {
     await crearPersona(nombre, categoria);
@@ -353,7 +353,7 @@ async function cargarPersonas() {
 
   tbody.innerHTML = '';
   if (personas.length === 0) { tbody.innerHTML = '<tr><td colspan="3">Todavía no hay nadie agregado.</td></tr>'; return; }
-  const etiquetas = { docente: 'Docente', psicologo: 'Psicóloga', coordinador: 'Coordinador', rector: 'Rector' };
+  const etiquetas = { docente: 'Docente', psicologo: 'Psicóloga', coordinador: 'Coordinadora', rector: 'Rectoría' };
   personas.sort((a,b) => a.categoria.localeCompare(b.categoria) || a.nombre.localeCompare(b.nombre));
   personas.forEach(p => {
     const tr = document.createElement('tr');
