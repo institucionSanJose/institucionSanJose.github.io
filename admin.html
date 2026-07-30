@@ -477,7 +477,7 @@ async function cargarInvitaciones() {
       <td>${inv.correo}</td>
       <td><span class="pill">${inv.rol}</span></td>
       <td>${inv.usada ? 'Ya se registró' : 'Pendiente'}</td>
-      <td>${inv.usada ? '' : `<button class="btn-mini" data-id="${doc.id}">Eliminar</button>`}</td>
+      <td><button class="btn-mini" data-id="${doc.id}">Eliminar</button></td>
     `;
     tbody.appendChild(tr);
   });
