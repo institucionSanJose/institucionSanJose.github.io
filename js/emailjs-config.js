@@ -4,6 +4,6 @@
 
 const EMAILJS_PUBLIC_KEY = 'sAyC1Pzd5P7OVrkWD';
 const EMAILJS_SERVICE_ID = 'service_m6luwb9';
-const EMAILJS_TEMPLATE_ID = 'template_f9o195c';
+const EMAILJS_TEMPLATE_ID = 'template_gqw978o';
 
 emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
