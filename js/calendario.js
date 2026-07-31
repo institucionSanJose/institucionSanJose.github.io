@@ -259,7 +259,7 @@ btnConfirmar.addEventListener('click', async () => {
       creado: firebase.firestore.FieldValue.serverTimestamp()
     });
     ocupados.add(`${slotSeleccionado.fecha}_${slotSeleccionado.hora}`);
-    const datosCita = { fecha: slotSeleccionado.fecha, hora: slotSeleccionado.hora, representante, estudiante, grado, seccion, motivo };
+    const datosCita = { fecha: slotSeleccionado.fecha, hora: slotSeleccionado.hora, representante, telefono, estudiante, grado, seccion, motivo };
     cerrarModal();
     mostrarConfirmacion(datosCita);
     cargarSemana();
