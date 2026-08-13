@@ -388,3 +388,12 @@ footer .wrap{display:flex; justify-content:space-between; align-items:center; fl
 /* Tablas con scroll horizontal en pantallas angostas */
 .tabla-scroll{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
 .tabla-scroll table{ min-width:420px; }
+
+/* Redes sociales en el footer */
+.footer-redes{ display:flex; gap:14px; align-items:center; }
+.footer-redes a{
+  display:inline-flex; align-items:center; justify-content:center;
+  width:34px; height:34px; border-radius:50%; background:rgba(214,168,59,0.15);
+  color:var(--dorado-suave); font-size:1.1rem; transition: background .15s ease;
+}
+.footer-redes a:hover{ background:rgba(214,168,59,0.3); }

@@ -21,7 +21,8 @@ service cloud.firestore {
     match /citas/{citaId} {
       allow read: if true;
       allow create: if request.resource.data.keys().hasAll(['personaId','categoria','fecha','hora','representante','telefono','estudiante','grado','seccion']);
-      allow update, delete: if false;
+      allow update: if false;
+      allow delete: if request.auth != null && resource.data.personaId == miPersonaId();
     }
 
     match /bloqueos/{id} {
@@ -35,6 +36,7 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow create: if request.auth != null && request.auth.uid == uid;
       allow update: if request.auth != null && (request.auth.uid == uid || esAdminOPropietario());
+      allow delete: if esAdminOPropietario();
     }
 
     match /invitaciones/{id} {
@@ -85,11 +87,39 @@ Ya no se edita ningún archivo de código para esto. Entra a `admin.html` (como 
 
 Sube todos los archivos y carpetas manteniendo la estructura (`css/`, `js/`, `assets/`, y todos los `.html` en la raíz). En Settings → Pages, publica desde `main` / raíz.
 
-## 6. Nota sobre seguridad
+## 6. Correo automático al agendar (EmailJS)
+
+1. Crea una cuenta gratis en emailjs.com (hasta 200 correos/mes gratis).
+2. En "Email Services", conecta el Gmail/Outlook del colegio.
+3. En "Email Templates", crea una plantilla con estos campos:
+   - **To email:** `{{to_email}}`
+   - **Subject:** `Nueva cita agendada — {{fecha}} {{hora}}`
+   - **Content:**
+     ```
+     Hola {{persona_nombre}},
+
+     Se agendó una nueva cita contigo:
+
+     Fecha: {{fecha}}
+     Hora: {{hora}}
+     Representante: {{representante}}
+     Teléfono: {{telefono}}
+     Estudiante: {{estudiante}} ({{grado}} {{seccion}})
+     Motivo: {{motivo}}
+
+     — Real Colegio San José
+     ```
+4. En "Account" → "General", copia tu Public Key. Copia también el Service ID y el Template ID.
+5. Abre `js/emailjs-config.js` y reemplaza `TU_PUBLIC_KEY`, `TU_SERVICE_ID` y `TU_TEMPLATE_ID` con esos valores.
+6. En `admin.html`, cada docente/psicólogo/coordinador necesita tener su "Correo para notificaciones" puesto para que le llegue el aviso. Si no lo tiene, simplemente no se envía nada (no da error).
+
+Esto es 100% automático: el representante no ve ni el correo ni el teléfono del profesor en ningún momento, todo pasa por detrás.
+
+## 7. Nota sobre seguridad
 
 Con Firebase Authentication, los permisos ya están protegidos por las reglas de Firestore, no solo por la interfaz. Aun así, no le des el rol "propietario" a nadie que no sea el rector, y ten cuidado a quién le compartes el acceso de administrador.
 
-## 7. Novedades de esta versión
+## 8. Novedades de esta versión
 
 - El formulario de citas ahora pide: representante, teléfono, estudiante, grado, sección y motivo.
 - `lista.html` tiene un buscador para filtrar docentes/psicólogos por nombre.
